@@ -27,29 +27,29 @@ namespace FlightBooking.API.Controllers
         }
 
         // GET: api/<ReservationsController>
-        [HttpGet]
-        public async Task<IActionResult> Get()
-        {
-            var reservartions = await _context.Reservations
-                .Include(x => x.Flight)
-                .Include(x => x.Flight).ThenInclude(c => c.DepartureCity)
-                .Include(x => x.Flight).ThenInclude(c => c.DestinationCity)
-                .Include(x => x.User)
-                .Where(x => x.UserId == _user.Id)
-                .ToListAsync();
+        //[HttpGet]
+        //public async Task<IActionResult> Get()
+        //{
+        //    var reservartions = await _context.Reservations
+        //        .Include(x => x.Flight)
+        //        .Include(x => x.Flight).ThenInclude(c => c.DepartureCity)
+        //        .Include(x => x.Flight).ThenInclude(c => c.DestinationCity)
+        //        .Include(x => x.User)
+        //        .Where(x => x.UserId == _user.Id)
+        //        .ToListAsync();
 
-            return Ok(reservartions.Select(x => new ReservationODto
-            {
-                Id = x.Id,
-                DepartureCity = x.Flight.DepartureCity.Name,
-                DestinationCity = x.Flight.DestinationCity.Name,
-                FullName = x.User.FirstName + ' ' + x.User.LastName,
-                NumberOfSeats = x.NumberOfSeats,
-                Status = x.Status,
-                DepartureDateTime = x.Flight.DepartureDateTime,
-                DestinationDateTime = x.Flight.ArrivalDateTime
-            }));
-        }
+        //    return Ok(reservartions.Select(x => new ReservationODto
+        //    {
+        //        Id = x.Id,
+        //        DepartureCity = x.Flight.DepartureCity.Name,
+        //        DestinationCity = x.Flight.DestinationCity.Name,
+        //        FullName = x.User.FirstName + ' ' + x.User.LastName,
+        //        NumberOfSeats = x.NumberOfSeats,
+        //        Status = x.Status,
+        //        DepartureDateTime = x.Flight.DepartureDateTime,
+        //        DestinationDateTime = x.Flight.ArrivalDateTime
+        //    }));
+        //}
 
         // GET: api/<ReservationsController>
         [HttpGet]
@@ -76,11 +76,11 @@ namespace FlightBooking.API.Controllers
         }
 
         // GET api/<ReservationsController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
+        //[HttpGet("{id}")]
+        //public string Get(int id)
+        //{
+        //    return "value";
+        //}
 
         // POST api/<ReservationsController>
         [HttpPost]
