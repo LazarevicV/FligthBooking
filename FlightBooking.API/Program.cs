@@ -10,6 +10,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowAll",
+            builder =>
+            {
+                builder.AllowAnyOrigin()  // Allow any origin
+                       .AllowAnyHeader()  // Allow any header
+                       .AllowAnyMethod(); // Allow any method
+            });
+    });
+
 //Konfiguracija DIC
 var settings = new AppSettings();
 builder.Configuration.Bind(settings);
@@ -25,6 +36,9 @@ builder.Services.AddHttpContextAccessor();
 
 
 var app = builder.Build();
+
+app.UseCors("AllowAll");
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

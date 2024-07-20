@@ -23,7 +23,10 @@ namespace FlightBooking.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllFlights()
         {
-            var flights = await _context.Flights.Include(r => r.Reservations).Include(c => c.DepartureCity).Include(x=> x.DestinationCity).ToListAsync();
+            var flights = await _context.Flights.Include(r => r.Reservations)
+                .Include(c => c.DepartureCity)
+                .Include(x=> x.DestinationCity)
+                .ToListAsync();
 
             List<FlightsODto> resultList = new List<FlightsODto>();
 
@@ -50,12 +53,74 @@ namespace FlightBooking.API.Controllers
             return Ok(resultList);
         }
 
-        // GET api/<FlightController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        // GET: api/<FlightController>
+        [HttpGet("flights")]
+        public async Task<IActionResult> GetFlights([FromQuery] GetFlightsIDto input)
         {
-            return "value";
+            var departureFlights = await _context.Flights
+                .Include(r => r.Reservations)
+                .Include(c => c.DepartureCity)
+                .Include(x => x.DestinationCity)
+                .Where(x=> x.DepartureCityId == input.DepartureCityId 
+                && x.DestinationCityId == input.DestinationCityId 
+                && x.DepartureDateTime.Date == input.DepartureDateTime.Date
+                && input.NoStops == true ? x.NumberOfStops == 0 : x.NumberOfStops >= 0
+                && x.Status == "Approved")
+                .ToListAsync();
+
+            var returnFlightsODto = new List<FlightsODto>();
+            var departureFlightsODto = new List<FlightsODto>();
+
+            departureFlightsODto.AddRange(departureFlights.Select(x => new FlightsODto
+            {
+                Id = x.Id,
+                DepartureCityId = x.DepartureCityId,
+                DestinationCityId = x.DestinationCityId,
+                DepartureCity = x.DepartureCity?.Name,
+                DestinationCity = x.DestinationCity?.Name,
+                DepartureDateTime = x.DepartureDateTime,
+                ArrivalDateTime = x.ArrivalDateTime,
+                NumberOfSeats = x.NumberOfSeats,
+                NumberOfStops = x.NumberOfStops,
+                NumberOfAvailableSpots = x.NumberOfSeats - x.Reservations.Where(r => r.FlightId == x.Id).Sum(r => r.NumberOfSeats),
+                Status = x.Status
+            }));
+
+            departureFlightsODto.Where(x => x.NumberOfAvailableSpots >= input.NumberOfSeats);
+
+            if (input.ReturnDateTime != null)
+            {
+                var returnFlights = await _context.Flights
+                .Include(r => r.Reservations)
+                .Include(c => c.DepartureCity)
+                .Include(x => x.DestinationCity)
+                .Where(x => x.DepartureCityId == input.DestinationCityId
+                && x.DestinationCityId == input.DepartureCityId && input.NoStops == true ? x.NumberOfStops == 0 : x.NumberOfStops >= 0
+                && x.DepartureDateTime.Date == input.ReturnDateTime.Value.Date
+                && x.Status == "Approved"
+                ).ToListAsync();
+
+                returnFlightsODto.AddRange(returnFlights.Select(x => new FlightsODto
+                {
+                    Id = x.Id,
+                    DepartureCityId = x.DepartureCityId,
+                    DestinationCityId = x.DestinationCityId,
+                    DepartureCity = x.DepartureCity?.Name,
+                    DestinationCity = x.DestinationCity?.Name,
+                    DepartureDateTime = x.DepartureDateTime,
+                    ArrivalDateTime = x.ArrivalDateTime,
+                    NumberOfSeats = x.NumberOfSeats,
+                    NumberOfStops = x.NumberOfStops,
+                    NumberOfAvailableSpots = x.NumberOfSeats - x.Reservations.Where(r => r.FlightId == x.Id).Sum(r => r.NumberOfSeats),
+                    Status = x.Status
+                }));
+            }
+
+            returnFlightsODto.Where(x => x.NumberOfAvailableSpots >= input.NumberOfSeats);
+
+            return Ok(new GetFlightsODto { DepartureFlights = departureFlightsODto, ReturnFlights = returnFlightsODto});
         }
+
 
         // POST api/<FlightController>
         [HttpPost]
@@ -111,12 +176,6 @@ namespace FlightBooking.API.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        // DELETE api/<FlightController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }
