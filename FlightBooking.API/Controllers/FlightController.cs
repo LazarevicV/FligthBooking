@@ -64,12 +64,12 @@ namespace FlightBooking.API.Controllers
                 .Where(x=> x.DepartureCityId == input.DepartureCityId 
                 && x.DestinationCityId == input.DestinationCityId 
                 && x.DepartureDateTime.Date == input.DepartureDateTime.Date
-                && input.NoStops == true ? x.NumberOfStops == 0 : x.NumberOfStops >= 0
+                && (input.NoStops && x.NumberOfStops == 0 || !input.NoStops && x.NumberOfStops >= 0)
                 && x.Status == "Approved")
                 .ToListAsync();
 
-            var returnFlightsODto = new List<FlightsODto>();
             var departureFlightsODto = new List<FlightsODto>();
+            var returnFlightsODto = new List<FlightsODto>();
 
             departureFlightsODto.AddRange(departureFlights.Select(x => new FlightsODto
             {
@@ -95,7 +95,8 @@ namespace FlightBooking.API.Controllers
                 .Include(c => c.DepartureCity)
                 .Include(x => x.DestinationCity)
                 .Where(x => x.DepartureCityId == input.DestinationCityId
-                && x.DestinationCityId == input.DepartureCityId && input.NoStops == true ? x.NumberOfStops == 0 : x.NumberOfStops >= 0
+                && x.DestinationCityId == input.DepartureCityId 
+                && (input.NoStops && x.NumberOfStops == 0 || !input.NoStops && x.NumberOfStops >= 0)
                 && x.DepartureDateTime.Date == input.ReturnDateTime.Value.Date
                 && x.Status == "Approved"
                 ).ToListAsync();
