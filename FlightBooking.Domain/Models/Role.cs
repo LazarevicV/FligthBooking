@@ -2,10 +2,9 @@
 
 namespace FlightBooking.Domain.Models
 {
-    public class Role
+    public class Role : Entity
     {
-        [Key]
-        public int Id { get; set; }
         public string Name { get; set; }
+
     }
 }

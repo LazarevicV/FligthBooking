@@ -12,6 +12,17 @@ namespace FlightBooking.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
+            /*modelBuilder.Entity<City>()
+           .HasOne(f => f)
+           .WithMany(c => c.DeparatureCities)
+           .HasForeignKey(f => f.DepartureCityId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Flight>()
+                .HasOne(f => f.DestinationCity)
+                .WithMany(c => c.DestinationFlights)
+                .HasForeignKey(f => f.DestinationCityId)
+                .OnDelete(DeleteBehavior.Restrict);*/
 
             base.OnModelCreating(modelBuilder);
         }

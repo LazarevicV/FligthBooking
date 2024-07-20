@@ -2,10 +2,8 @@
 
 namespace FlightBooking.Domain.Models
 {
-    public class Flight
+    public class Flight : Entity
     {
-        [Key]
-        public int Id { get; set; }
         public int DepartureCityId { get; set; }
         public int DestinationCityId { get; set; }
         public DateTime DepartureDateTime { get; set; }
@@ -14,8 +12,9 @@ namespace FlightBooking.Domain.Models
         public int NumberOfStops { get; set; }
         public string Status { get; set; }
 
-        public ICollection<City>? City { get; set; }
-        public ICollection<Reservation>? Reservations { get; set; }
+        public City DepartureCity { get; set; }
+        public City DestinationCity { get; set; }
+        public List<Reservation>? Reservations { get; set; }
 
     }
 }

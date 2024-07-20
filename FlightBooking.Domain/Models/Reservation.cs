@@ -2,10 +2,8 @@
 
 namespace FlightBooking.Domain.Models
 {
-    public class Reservation
+    public class Reservation : Entity
     {
-        [Key]
-        public int Id { get; set; }
         public int UserId { get; set; }
         public int FlightId { get; set; }
         public string Status { get; set; }

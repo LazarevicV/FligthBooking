@@ -23,21 +23,21 @@ namespace FlightBooking.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllFlights()
         {
-           /* var flights = await _context.Flights.Include(r=> r.Reservations).Include(c=> c.City).ToListAsync();
+            var flights = await _context.Flights.Include(r => r.Reservations).Include(c => c.DepartureCity).Include(x=> x.DestinationCity).ToListAsync();
 
             List<FlightsODto> resultList = new List<FlightsODto>();
 
             foreach (var flight in flights)
             {
-                var numberOfReservedSeats = flight.Reservations.Where(r => r.FligthId == flight.Id).Sum(r=> r.NumberOfSeats);
+                var numberOfReservedSeats = flight.Reservations.Where(r => r.FlightId == flight.Id).Sum(r => r.NumberOfSeats);
 
                 var result = new FlightsODto
                 {
                     Id = flight.Id,
                     DepartureCityId = flight.DepartureCityId,
                     DestinationCityId = flight.DestinationCityId,
-                    DepartureCity = flight.City.FirstOrDefault(x => x.Id == flight.DepartureCityId)?.Name,
-                    DestinationCity = flight.City.FirstOrDefault(x => x.Id == flight.DestinationCityId)?.Name,
+                    DepartureCity = flight.DepartureCity?.Name,
+                    DestinationCity = flight.DestinationCity?.Name,
                     DepartureDateTime = flight.DepartureDateTime,
                     ArrivalDateTime = flight.ArrivalDateTime,
                     NumberOfSeats = flight.NumberOfSeats,
@@ -46,8 +46,8 @@ namespace FlightBooking.API.Controllers
                     Status = flight.Status
                 };
                 resultList.Add(result);
-            }*/
-            return Ok();
+            }
+            return Ok(resultList);
         }
 
         // GET api/<FlightController>/5

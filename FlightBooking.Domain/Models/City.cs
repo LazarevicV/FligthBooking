@@ -2,10 +2,8 @@
 
 namespace FlightBooking.Domain.Models
 {
-    public class City
+    public class City : Entity
     {
-        [Key]
-        public int Id { get; set; }
         public string Name { get; set; }
     }
 }
