@@ -1,5 +1,6 @@
 using FlightBooking.API.Core;
 using FlightBooking.API.Extensions;
+using FlightBooking.API.Hub;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,18 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowAll",
+            builder =>
+            {
+                builder.AllowAnyOrigin()  // Allow any origin
+                       .AllowAnyHeader()  // Allow any header
+                       .AllowAnyMethod(); // Allow any method
+            });
+    });
 
 //Konfiguracija DIC
 var settings = new AppSettings();
@@ -26,6 +39,9 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
+app.UseCors("AllowAll");
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -34,6 +50,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapHub<LiveUpdateHub>("/liveUpdateHub");
 
 app.UseAuthorization();
 
