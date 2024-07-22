@@ -26,7 +26,7 @@ namespace FlightBooking.API.Controllers
             _hubContext = hubContext;
         }
 
-        // GET: api/<ReservationsController>
+        // GET: api/<ReservationController>
         [HttpGet]
         public async Task<IActionResult> Get()
         {

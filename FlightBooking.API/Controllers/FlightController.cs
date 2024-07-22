@@ -53,7 +53,6 @@ namespace FlightBooking.API.Controllers
             return Ok(resultList);
         }
 
-        // GET: api/<FlightController>
         [HttpGet("flights")]
         public async Task<IActionResult> GetFlights([FromQuery] GetFlightsIDto input)
         {
@@ -61,17 +60,13 @@ namespace FlightBooking.API.Controllers
                 .Include(r => r.Reservations)
                 .Include(c => c.DepartureCity)
                 .Include(x => x.DestinationCity)
-                .Where(x=> x.DepartureCityId == input.DepartureCityId 
-                && x.DestinationCityId == input.DestinationCityId 
-                && x.DepartureDateTime.Date == input.DepartureDateTime.Date
-                && (input.NoStops && x.NumberOfStops == 0 || !input.NoStops && x.NumberOfStops >= 0)
-                && x.Status == "Approved")
+                .Where(x => x.DepartureCityId == input.DepartureCityId
+                            && x.DestinationCityId == input.DestinationCityId
+                            && (input.NoStops && x.NumberOfStops == 0 || !input.NoStops && x.NumberOfStops >= 0)
+                            && x.Status == "Approved")
                 .ToListAsync();
 
-            var departureFlightsODto = new List<FlightsODto>();
-            var returnFlightsODto = new List<FlightsODto>();
-
-            departureFlightsODto.AddRange(departureFlights.Select(x => new FlightsODto
+            var departureFlightsODto = departureFlights.Select(x => new FlightsODto
             {
                 Id = x.Id,
                 DepartureCityId = x.DepartureCityId,
@@ -82,44 +77,11 @@ namespace FlightBooking.API.Controllers
                 ArrivalDateTime = x.ArrivalDateTime,
                 NumberOfSeats = x.NumberOfSeats,
                 NumberOfStops = x.NumberOfStops,
-                NumberOfAvailableSpots = x.NumberOfSeats - x.Reservations.Where(r => r.FlightId == x.Id).Sum(r => r.NumberOfSeats),
+                NumberOfAvailableSpots = x.NumberOfSeats - x.Reservations.Sum(r => r.NumberOfSeats),
                 Status = x.Status
-            }));
+            }).Where(x => x.NumberOfAvailableSpots > 0).ToList();
 
-            departureFlightsODto.Where(x => x.NumberOfAvailableSpots >= input.NumberOfSeats);
-
-            if (input.ReturnDateTime != null)
-            {
-                var returnFlights = await _context.Flights
-                .Include(r => r.Reservations)
-                .Include(c => c.DepartureCity)
-                .Include(x => x.DestinationCity)
-                .Where(x => x.DepartureCityId == input.DestinationCityId
-                && x.DestinationCityId == input.DepartureCityId 
-                && (input.NoStops && x.NumberOfStops == 0 || !input.NoStops && x.NumberOfStops >= 0)
-                && x.DepartureDateTime.Date == input.ReturnDateTime.Value.Date
-                && x.Status == "Approved"
-                ).ToListAsync();
-
-                returnFlightsODto.AddRange(returnFlights.Select(x => new FlightsODto
-                {
-                    Id = x.Id,
-                    DepartureCityId = x.DepartureCityId,
-                    DestinationCityId = x.DestinationCityId,
-                    DepartureCity = x.DepartureCity?.Name,
-                    DestinationCity = x.DestinationCity?.Name,
-                    DepartureDateTime = x.DepartureDateTime,
-                    ArrivalDateTime = x.ArrivalDateTime,
-                    NumberOfSeats = x.NumberOfSeats,
-                    NumberOfStops = x.NumberOfStops,
-                    NumberOfAvailableSpots = x.NumberOfSeats - x.Reservations.Where(r => r.FlightId == x.Id).Sum(r => r.NumberOfSeats),
-                    Status = x.Status
-                }));
-            }
-
-            returnFlightsODto.Where(x => x.NumberOfAvailableSpots >= input.NumberOfSeats);
-
-            return Ok(new GetFlightsODto { DepartureFlights = departureFlightsODto, ReturnFlights = returnFlightsODto});
+            return Ok(departureFlightsODto);
         }
 
 
