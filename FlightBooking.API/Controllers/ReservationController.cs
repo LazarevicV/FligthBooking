@@ -38,21 +38,21 @@ namespace FlightBooking.API.Controllers
                 .Where(x => x.UserId == _user.Id)
                 .ToListAsync();
 
-        //    return Ok(reservartions.Select(x => new ReservationODto
-        //    {
-        //        Id = x.Id,
-        //        DepartureCity = x.Flight.DepartureCity.Name,
-        //        DestinationCity = x.Flight.DestinationCity.Name,
-        //        FullName = x.User.FirstName + ' ' + x.User.LastName,
-        //        NumberOfSeats = x.NumberOfSeats,
-        //        Status = x.Status,
-        //        DepartureDateTime = x.Flight.DepartureDateTime,
-        //        DestinationDateTime = x.Flight.ArrivalDateTime
-        //    }));
-        //}
+            return Ok(reservartions.Select(x => new ReservationODto
+            {
+                Id = x.Id,
+                DepartureCity = x.Flight.DepartureCity.Name,
+                DestinationCity = x.Flight.DestinationCity.Name,
+                FullName = x.User.FirstName + ' ' + x.User.LastName,
+                NumberOfSeats = x.NumberOfSeats,
+                Status = x.Status,
+                DepartureDateTime = x.Flight.DepartureDateTime,
+                DestinationDateTime = x.Flight.ArrivalDateTime
+            }));
+        }
 
         // GET: api/<ReservationsController>
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllReservations()
         {
             var reservartions = await _context.Reservations
