@@ -51,9 +51,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapHub<LiveUpdateHub>("/liveUpdateHub");
 
+app.UseAuthentication();  // Ensure this is before UseAuthorization
 app.UseAuthorization();
+
+app.MapHub<LiveUpdateHub>("/liveUpdateHub");
 
 app.MapControllers();
 
