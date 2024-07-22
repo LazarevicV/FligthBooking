@@ -5,7 +5,9 @@ namespace FlightBooking.API.Hub
 {
     public interface ILiveUpdateHub 
     {
-        Task ReservationAdded(FlightsODto output);
+        Task ReservationAdded(ReservationODto output);
+        Task ReservationApproved(ApprovedReservationODto output);
+        Task ReservationRejected(RejectedReservationODto output);
     }
     public class LiveUpdateHub : Hub<ILiveUpdateHub>
     {

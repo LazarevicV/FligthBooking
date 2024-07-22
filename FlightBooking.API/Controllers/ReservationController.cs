@@ -105,10 +105,7 @@ namespace FlightBooking.API.Controllers
                 Status = "Pending"
             };
 
-            _context.Reservations.Add(reservation);
-            await _context.SaveChangesAsync();
-
-            var result = new FlightsODto
+            /*var result = new FlightsODto
             {
                 Id = flight.Id,
                 DepartureCityId = flight.DepartureCityId,
@@ -119,10 +116,33 @@ namespace FlightBooking.API.Controllers
                 ArrivalDateTime = flight.ArrivalDateTime,
                 NumberOfSeats = flight.NumberOfSeats,
                 NumberOfStops = flight.NumberOfStops,
-                NumberOfAvailableSpots = flight.NumberOfSeats - flight.Reservations.Where(r => r.FlightId == flight.Id).Sum(r => r.NumberOfSeats),
+                NumberOfAvailableSpots = flight.NumberOfSeats - flight.Reservations.Where(r => r.FlightId == flight.Id).Sum(r => r.NumberOfSeats) - dto.NumberOfSeats,
                 Status = flight.Status
-            };
+            };*/
 
+            _context.Reservations.Add(reservation);
+            await _context.SaveChangesAsync();
+
+            var savedReservation = await _context.Reservations
+                    .Include(r => r.User)
+                    .FirstOrDefaultAsync(r => r.Id == reservation.Id);
+
+            if (savedReservation == null || savedReservation.User == null)
+            {
+                return BadRequest("Reservation or User not found after saving.");
+            }
+
+            var result = new ReservationODto
+            {
+                Id = savedReservation.Id,
+                DepartureCity = flight.DepartureCity.Name,
+                DestinationCity = flight.DestinationCity.Name,
+                FullName = savedReservation.User.FirstName + ' ' + savedReservation.User.LastName,
+                NumberOfSeats = savedReservation.NumberOfSeats,
+                Status = savedReservation.Status,
+                DepartureDateTime = flight.DepartureDateTime,
+                DestinationDateTime = flight.ArrivalDateTime
+            };
 
             await _hubContext.Clients.All.ReservationAdded(result);
 
@@ -144,7 +164,11 @@ namespace FlightBooking.API.Controllers
 
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            var result = new ApprovedReservationODto { Id = reservation.Id, Status = reservation.Status };
+
+            await _hubContext.Clients.All.ReservationApproved(result);
+
+            return Ok(result);
         }
 
         // PUT api/<FlightController>/5
@@ -162,7 +186,11 @@ namespace FlightBooking.API.Controllers
 
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            var result = new RejectedReservationODto { Id = reservation.Id, Status = reservation.Status };
+
+            await _hubContext.Clients.All.ReservationRejected(result);
+
+            return Ok(result);
         }
 
         // DELETE api/<ReservationsController>/5
